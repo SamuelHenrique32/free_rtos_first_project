@@ -21,6 +21,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
+#include "stm32f405xx.h"
+#include "stm32f4xx_hal.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -114,6 +116,12 @@ int main(void)
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
+  // HSI ON, PLL OFF, HSE OFF, System clock = base clock, CPU clock = base clock
+  //RCC_DeInit();
+
+  //SystemCoreClock = 1000000;
+  SystemCoreClockUpdate();
+
   /* USER CODE END RTOS_THREADS */
 
   /* Start scheduler */

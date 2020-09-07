@@ -116,14 +116,17 @@ int main(void)
 
   /* Create the thread(s) */
   /* definition and creation of defaultTask */
-  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
+  //osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
 
   // Name of task handler, name for the task, stack depth (how much memory in bytes), parameters, priority, task handler(ID to delete, resume...)
   xTaskCreate(vTask1_handler, "Task-1", configMINIMAL_STACK_SIZE, NULL, 2, &xTaskHandle1);
 
   xTaskCreate(vTask2_handler, "Task-2", configMINIMAL_STACK_SIZE, NULL, 2, &xTaskHandle2);
 
-  defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
+  // Start scheduler to two tasks created, the code below this is dead code
+  vTaskStartScheduler();
+
+  //defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -136,7 +139,7 @@ int main(void)
   /* USER CODE END RTOS_THREADS */
 
   /* Start scheduler */
-  osKernelStart();
+  //osKernelStart();
  
   /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */

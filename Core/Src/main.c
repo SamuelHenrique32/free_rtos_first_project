@@ -45,7 +45,10 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-
+#define TRUE 1
+#define FALSE 0
+#define AVAILABLE TRUE
+#define NOT_AVAILABLE FALSE
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -53,6 +56,7 @@ osThreadId defaultTaskHandle;
 TaskHandle_t xTaskHandle1 = NULL;
 TaskHandle_t xTaskHandle2 = NULL;
 char usr_msg[250]={0};
+uint8_t UART_ACCESS_KEY = AVAILABLE;
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -173,21 +177,36 @@ int main(void)
   /* USER CODE END 3 */
 }
 
-// Task1 handler
 void vTask1_handler(void *params)
 {
+	//traceTASK_SWITCHED_IN();
 	while(1)
 	{
+		if(UART_ACCESS_KEY == AVAILABLE)
+		{
+			UART_ACCESS_KEY = NOT_AVAILABLE;
+			printmsg("Hello-world: From Task-1\r\n");
+			UART_ACCESS_KEY = AVAILABLE;
 
+			// Leave CPU, force context switching
+			taskYIELD();
+		}
 	}
 }
 
-// Task2 handler
 void vTask2_handler(void *params)
 {
 	while(1)
 	{
+		if(UART_ACCESS_KEY == AVAILABLE)
+		{
+			UART_ACCESS_KEY = NOT_AVAILABLE;
+			printmsg("Hello-world: From Task-2\r\n");
+			UART_ACCESS_KEY = AVAILABLE;
 
+			// Leave CPU, force context switching
+     		taskYIELD();
+		}
 	}
 }
 

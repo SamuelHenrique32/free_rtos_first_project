@@ -19,6 +19,8 @@
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
+#include <stdio.h>
+#include <stdint.h>
 #include "main.h"
 #include "cmsis_os.h"
 #include "task.h" // Mandatory to tasks
@@ -57,6 +59,7 @@ void SystemClock_Config(void);
 void StartDefaultTask(void const * argument);
 void vTask1_handler(void *params);
 void vTask2_handler(void *params);
+extern void initialise_monitor_handles(); // Used for semihosting
 
 /* USER CODE BEGIN PFP */
 
@@ -117,6 +120,9 @@ int main(void)
   /* Create the thread(s) */
   /* definition and creation of defaultTask */
   //osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
+  initialise_monitor_handles();
+
+  printf("Hello World\n");
 
   // Name of task handler, name for the task, stack depth (how much memory in bytes), parameters, priority, task handler(ID to delete, resume...)
   xTaskCreate(vTask1_handler, "Task-1", configMINIMAL_STACK_SIZE, NULL, 2, &xTaskHandle1);
@@ -156,13 +162,19 @@ int main(void)
 // Task1 handler
 void vTask1_handler(void *params)
 {
-	while(1);
+	while(1)
+	{
+		printf("Hello World From Task 1\n");
+	}
 }
 
 // Task2 handler
 void vTask2_handler(void *params)
 {
-	while(1);
+	while(1)
+	{
+		printf("Hello World From Task 2\n");
+	}
 }
 
 /**

@@ -21,8 +21,9 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
-#include "stm32f405xx.h"
-#include "stm32f4xx_hal.h"
+#include "task.h" // Mandatory to tasks
+#include "FreeRTOS.h" // Mandatory
+#include "stm32f4xx.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -45,6 +46,8 @@
 
 /* Private variables ---------------------------------------------------------*/
 osThreadId defaultTaskHandle;
+TaskHandle_t xTaskHandle1 = NULL;
+TaskHandle_t xTaskHandle2 = NULL;
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -52,6 +55,8 @@ osThreadId defaultTaskHandle;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 void StartDefaultTask(void const * argument);
+void vTask1_handler(void *params);
+void vTask2_handler(void *params);
 
 /* USER CODE BEGIN PFP */
 
@@ -112,6 +117,12 @@ int main(void)
   /* Create the thread(s) */
   /* definition and creation of defaultTask */
   osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
+
+  // Name of task handler, name for the task, stack depth (how much memory in bytes), parameters, priority, task handler(ID to delete, resume...)
+  xTaskCreate(vTask1_handler, "Task-1", configMINIMAL_STACK_SIZE, NULL, 2, &xTaskHandle1);
+
+  xTaskCreate(vTask2_handler, "Task-2", configMINIMAL_STACK_SIZE, NULL, 2, &xTaskHandle2);
+
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
@@ -120,7 +131,7 @@ int main(void)
   //RCC_DeInit();
 
   //SystemCoreClock = 1000000;
-  SystemCoreClockUpdate();
+  //SystemCoreClockUpdate();
 
   /* USER CODE END RTOS_THREADS */
 
@@ -137,6 +148,18 @@ int main(void)
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
+}
+
+// Task1 handler
+void vTask1_handler(void *params)
+{
+	while(1);
+}
+
+// Task2 handler
+void vTask2_handler(void *params)
+{
+	while(1);
 }
 
 /**

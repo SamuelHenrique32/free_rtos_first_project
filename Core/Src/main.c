@@ -21,11 +21,13 @@
 /* Includes ------------------------------------------------------------------*/
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
 #include "main.h"
 #include "cmsis_os.h"
 #include "task.h" // Mandatory to tasks
 #include "FreeRTOS.h" // Mandatory
 #include "stm32f4xx.h"
+#include "stm32f4xx_hal.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -56,6 +58,7 @@ TaskHandle_t xTaskHandle2 = NULL;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+static void MX_GPIO_Init(void);
 void StartDefaultTask(void const * argument);
 void vTask1_handler(void *params);
 void vTask2_handler(void *params);
@@ -101,6 +104,7 @@ int main(void)
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
+  MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -182,14 +186,38 @@ void vTask2_handler(void *params)
 }
 
 // Private, config hardware
+// NOTE: Used for teacher's hardware (without HAL)
 static void prvSetupHardware(void)
 {
-	// Enable UART2 Peripheral Clock
-	//RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2,ENABLE);
+	GPIO_InitTypeDef gpio_uart_pins;
+	USART_InitTypedef uart2_init;
+
+	// Enable UART2 and GPIOA Peripheral Clock
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2,ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA,ENABLE);
 
 	// PA2 is TX, PA3 is RX
 
 	// Alternate function config of MCU pins to behave as RX and TX
+	memset(&gpio_uart_pins, 0, sizeof(gpio_uart_pins));
+	gpio_uart_pins.GPIO_Pin = GPIO_Pin_2 | GPIO_Pin_3;
+	gpio_uart_pins.GPIO_Mode = GPIO_Mode_AF;
+	gpio_uart_pins.GPIO_PuPd = GPIO_PuPd_UP;
+	GPIO_Init(GPIOA, &gpio_uart_pins);
+
+	// AF mode setting for the pins
+	GPIO_PinAFConfig(GPIOA, GPIO_PinSource2, GPIO_AF_USART2); // PA2
+	GPIO_PinAFConfig(GPIOA, GPIO_PinSource3, GPIO_AF_USART2); // PA3
+
+	// UART parameters initializations
+	memset(&uart2_init, 0, sizeof(uart2_init));
+	uart2_init.USART_BaudRate = 115200;
+	uart2_init.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+	uart2_init.USART_Mode = USART_Mode_Tx | USART_Mode_Rx;
+	uart2_init.USART_Parity = USART_Parity_No;
+	uart2_init.USART_StopBits = USART_Stop_Bits1;
+	uart2_init.USART_WordLength = USART_WordLength_8b;
+	USART_Init(&USART2, &uart2_init);
 }
 
 /**
@@ -228,6 +256,28 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+}
+
+/**
+  * @brief GPIO Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_GPIO_Init(void)
+{
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+  /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+
+  /*Configure GPIO pins : PA2 PA3 */
+  GPIO_InitStruct.Pin = GPIO_PIN_2|GPIO_PIN_3;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+  GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
 }
 
 /* USER CODE BEGIN 4 */

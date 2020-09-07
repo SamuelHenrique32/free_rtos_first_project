@@ -59,7 +59,10 @@ void SystemClock_Config(void);
 void StartDefaultTask(void const * argument);
 void vTask1_handler(void *params);
 void vTask2_handler(void *params);
+#ifdef USE_SEMIHOSTING
 extern void initialise_monitor_handles(); // Used for semihosting
+#endif
+static void prvSetupHardware(void);
 
 /* USER CODE BEGIN PFP */
 
@@ -91,6 +94,7 @@ int main(void)
 
   /* Configure the system clock */
   SystemClock_Config();
+  HAL_RCC_DeInit();
 
   /* USER CODE BEGIN SysInit */
 
@@ -117,12 +121,12 @@ int main(void)
   /* add queues, ... */
   /* USER CODE END RTOS_QUEUES */
 
-  /* Create the thread(s) */
-  /* definition and creation of defaultTask */
-  //osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
+#ifdef USE_SEMIHOSTING
   initialise_monitor_handles();
+  printf("Hello from semi-hosting");
+#endif
 
-  printf("Hello World\n");
+  prvSetupHardware();
 
   // Name of task handler, name for the task, stack depth (how much memory in bytes), parameters, priority, task handler(ID to delete, resume...)
   xTaskCreate(vTask1_handler, "Task-1", configMINIMAL_STACK_SIZE, NULL, 2, &xTaskHandle1);
@@ -164,7 +168,7 @@ void vTask1_handler(void *params)
 {
 	while(1)
 	{
-		printf("Hello World From Task 1\n");
+
 	}
 }
 
@@ -173,8 +177,19 @@ void vTask2_handler(void *params)
 {
 	while(1)
 	{
-		printf("Hello World From Task 2\n");
+
 	}
+}
+
+// Private, config hardware
+static void prvSetupHardware(void)
+{
+	// Enable UART2 Peripheral Clock
+	//RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2,ENABLE);
+
+	// PA2 is TX, PA3 is RX
+
+	// Alternate function config of MCU pins to behave as RX and TX
 }
 
 /**
